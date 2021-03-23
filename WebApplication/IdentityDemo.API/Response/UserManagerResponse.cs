@@ -9,6 +9,7 @@ namespace IdentityDemo.API.Response
     {
         public string Message { get; set; }
         public bool Issuccess { get; set; }
+        public DateTime? ExpireDate { get; set; }
         public IEnumerable<string> Errors { get; set; }
     }
 }

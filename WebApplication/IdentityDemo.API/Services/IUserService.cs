@@ -7,5 +7,7 @@ namespace IdentityDemo.API.Services
     public interface IUserService
     {
         Task<UserManagerResponse> RegisterUser(RegisterViewModel model);
+
+        Task<UserManagerResponse> LoginUser(LoginViewModel model);
     }
 }

@@ -51,17 +51,18 @@ namespace IdentityDemo.API
             })
              .AddJwtBearer(cfg =>
              {
-                 cfg.TokenValidationParameters = new TokenValidationParameters
-                 {
-                     ValidateIssuer = true,
-                     ValidateAudience = true,
-                     ValidateIssuerSigningKey = true,
-                     RequireExpirationTime = true,
-                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("this is the key we need"))
+             cfg.TokenValidationParameters = new TokenValidationParameters
+             {
+                 ValidateIssuer = true,
+                 ValidateAudience = true,
+                 ValidateIssuerSigningKey = true,
+                 RequireExpirationTime = true,
+                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["AuthSettings:Key"]))
                  };
              });
 
             services.AddScoped<IUserService, UserService>();
+            services.AddTransient<IMailService, MailService>();
             services.AddControllers();
         }
 

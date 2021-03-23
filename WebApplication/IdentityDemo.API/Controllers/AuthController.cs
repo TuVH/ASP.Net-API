@@ -15,10 +15,12 @@ namespace IdentityDemo.API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IMailService _mailService;
 
-        public AuthController(IUserService userService)
+        public AuthController(IUserService userService, IMailService mailService)
         {
             _userService = userService;
+            _mailService = mailService;
         }
 
         [HttpPost("Register")]
@@ -29,6 +31,21 @@ namespace IdentityDemo.API.Controllers
                 var result = await _userService.RegisterUser(model);
                 if (result.Issuccess)
                 {
+                    return Ok(result);
+                }
+                return BadRequest(result);
+            }
+            return BadRequest("some are not valid"); // status code : 400
+        }
+        [HttpPost("Login")]
+        public async Task<IActionResult> LoginAsync(LoginViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await _userService.LoginUser(model);
+                if (result.Issuccess)
+                {
+                    await _mailService.SendMail(model.Email, "New Login", "<h1>Hey! New Login from me</h1>");
                     return Ok(result);
                 }
                 return BadRequest(result);
