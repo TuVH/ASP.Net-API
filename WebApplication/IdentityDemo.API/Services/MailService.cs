@@ -17,7 +17,7 @@ namespace IdentityDemo.API.Services
         {
             var apiKey = _configuration["SendApiKey"];
             var client = new SendGridClient(apiKey);
-            var from = new EmailAddress("hoangtu13920010@gmail.com", "JWT Authentication");
+            var from = new EmailAddress("hoangtu13092001@gmail.com", "JWT Authentication");
             var to = new EmailAddress(toEmail);
             var msg = MailHelper.CreateSingleEmail(from, to, subject, content, content);
             var response = await client.SendEmailAsync(msg);

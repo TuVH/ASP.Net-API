@@ -1,6 +1,7 @@
 ﻿using IdentityDemo.API.Services;
 using IdentityDemo.API.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,11 +17,14 @@ namespace IdentityDemo.API.Controllers
     {
         private readonly IUserService _userService;
         private readonly IMailService _mailService;
+        private readonly IConfiguration _configuration;
 
-        public AuthController(IUserService userService, IMailService mailService)
+        public AuthController(IUserService userService,IMailService mailService,
+            IConfiguration configuration)
         {
             _userService = userService;
             _mailService = mailService;
+            _configuration = configuration;
         }
 
         [HttpPost("Register")]
@@ -45,12 +49,22 @@ namespace IdentityDemo.API.Controllers
                 var result = await _userService.LoginUser(model);
                 if (result.Issuccess)
                 {
-                    await _mailService.SendMail(model.Email, "New Login", "<h1>Hey! New Login from me</h1>");
+                    //await _mailService.SendMail(model.Email, "New Login", "<h1>Hey! New Login from me</h1>");
                     return Ok(result);
                 }
                 return BadRequest(result);
             }
             return BadRequest("some are not valid"); // status code : 400
+        }
+        [HttpGet("confirmemail")]
+        public async Task<IActionResult> ConfirmEmail(string id, string token)
+        {
+            var result = await _userService.EmailConfirm(id, token);
+            if (result.Issuccess)
+            {
+                return Redirect($"{_configuration["AppUrl"]}/Index.html");
+            }
+            return BadRequest(result);
         }
 
         // GET: api/<AuthController>

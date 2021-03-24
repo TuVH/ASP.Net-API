@@ -1,6 +1,7 @@
 ﻿using IdentityDemo.API.Response;
 using IdentityDemo.API.ViewModels;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -17,11 +18,16 @@ namespace IdentityDemo.API.Services
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IConfiguration _configuration;
-        public UserService(UserManager<IdentityUser> userManager, IConfiguration configuration)
+        private readonly IMailService _mailService;
+        public UserService(UserManager<IdentityUser> userManager, 
+            IConfiguration configuration, IMailService mailService)
         {
             _userManager = userManager;
             _configuration = configuration;
+            _mailService = mailService;
         }
+
+        
 
         public async Task<UserManagerResponse> LoginUser(LoginViewModel model)
         {
@@ -82,8 +88,6 @@ namespace IdentityDemo.API.Services
                     Issuccess = false
                 };
             }
-
-
             var identityUser = new IdentityUser
             {
                 Email = model.Email,
@@ -93,6 +97,18 @@ namespace IdentityDemo.API.Services
             var result = await _userManager.CreateAsync(identityUser, model.PassWord);
             if (result.Succeeded)
             {
+                //Genarate Token when Register
+                var generateEmailToken = await _userManager.GenerateEmailConfirmationTokenAsync(identityUser);
+                var byteEmail = Encoding.UTF8.GetBytes(generateEmailToken);
+                var tokenEncode = WebEncoders.Base64UrlEncode(byteEmail);
+
+                string url =
+                    $"{_configuration["AppUrl"]}/api/auth/confirmemail?id={identityUser.Id}&token={tokenEncode}";
+
+                await _mailService.SendMail(identityUser.Email, "Email Confirm", 
+                    $"<h1>Welcome to my application</h1>"+
+                    $"<p>Please confirm your Email by <a href='{url}'> Clicking here </a> </p>");
+
                 return new UserManagerResponse
                 {
                     Message = " successful",
@@ -106,7 +122,37 @@ namespace IdentityDemo.API.Services
                 Errors = result.Errors.Select(x => x.Description)
 
             };
+            
 
+        }
+        public async Task<UserManagerResponse> EmailConfirm(string id, string token)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user is null)
+            {
+                return new UserManagerResponse
+                {
+                    Issuccess = false,
+                    Message = "Cannot find your User"
+                };
+            }
+            var tokenDecode = WebEncoders.Base64UrlDecode(token);
+            var normalToken = Encoding.UTF8.GetString(tokenDecode);
+
+            var result = await _userManager.ConfirmEmailAsync(user, normalToken);
+            if (!result.Succeeded)
+            {
+                return new UserManagerResponse
+                {
+                    Issuccess = false,
+                    Message = "Cannot find your User"
+                };
+            }
+            return new UserManagerResponse
+            {
+                Issuccess = true,
+                Message = "Successful Confirm"
+            };
 
         }
     }

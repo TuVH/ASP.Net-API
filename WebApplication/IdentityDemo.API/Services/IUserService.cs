@@ -9,5 +9,8 @@ namespace IdentityDemo.API.Services
         Task<UserManagerResponse> RegisterUser(RegisterViewModel model);
 
         Task<UserManagerResponse> LoginUser(LoginViewModel model);
+        Task<UserManagerResponse> EmailConfirm(string id, string token);
+
+        
     }
 }
