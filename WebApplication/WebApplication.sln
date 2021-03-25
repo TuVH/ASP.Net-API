@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApplication", "WebApplic
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApplication1", "WebApplication1\WebApplication1.csproj", "{A39284DD-C5F2-4A9C-914E-13223184431F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityDemo.API", "IdentityDemo.API\IdentityDemo.API.csproj", "{ADD568A9-E880-461A-9A72-2DC3B55C9C62}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityDemo.API", "IdentityDemo.API\IdentityDemo.API.csproj", "{ADD568A9-E880-461A-9A72-2DC3B55C9C62}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

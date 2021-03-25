@@ -58,6 +58,7 @@ namespace IdentityDemo.API
             services.AddScoped<IUserService, UserService>();
             services.AddTransient<IMailService, MailService>();
             services.AddControllers();
+            services.AddRazorPages();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -78,6 +79,7 @@ namespace IdentityDemo.API
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapRazorPages();
                 endpoints.MapControllers();
             });
         }

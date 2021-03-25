@@ -27,8 +27,6 @@ namespace IdentityDemo.API.Services
             _mailService = mailService;
         }
 
-        
-
         public async Task<UserManagerResponse> LoginUser(LoginViewModel model)
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
@@ -154,6 +152,74 @@ namespace IdentityDemo.API.Services
                 Message = "Successful Confirm"
             };
 
+        }
+
+        public async Task<UserManagerResponse> ForgetPassword(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user is null)
+            {
+                return new UserManagerResponse
+                {
+                    Message = "Cannot your Email Adress",
+                    Issuccess = false
+                };
+            }
+            var generatePasswordToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var bytePassword = Encoding.UTF8.GetBytes(generatePasswordToken);
+            var tokenEncode = WebEncoders.Base64UrlEncode(bytePassword);
+
+            string url =
+                $"{_configuration["AppUrl"]}/ResetPassword?email={email}&token={tokenEncode}";
+
+            await _mailService.SendMail(user.Email, "Reset password",
+                $"<h1>Welcome to my application</h1>" +
+                $"<p>Reset Password by <a href='{url}'> Clicking here </a> </p>");
+            return new UserManagerResponse
+            {
+                Message = "Send Successful",
+                Issuccess = true
+            };
+        }
+
+        public async Task<UserManagerResponse> ResetPassword(ResetPasswordViewModel reset)
+        {
+            var user = await _userManager.FindByEmailAsync(reset.Email);
+            if (user is null)
+            {
+                return new UserManagerResponse
+                {
+                    Message = "Cannot your Email Adress",
+                    Issuccess = false
+                };
+            }
+            if (reset.NewPassWord != reset.ConfirmNewPassWord)
+            {
+                return new UserManagerResponse
+                {
+                    Message = "Password doesn't match",
+                    Issuccess = false
+                };
+            }
+            var tokenDecode = WebEncoders.Base64UrlDecode(reset.Token);
+            var normalToken = Encoding.UTF8.GetString(tokenDecode);
+
+
+            var result = await _userManager.ResetPasswordAsync(user, normalToken, reset.NewPassWord);
+            if (result.Succeeded)
+            {
+                return new UserManagerResponse
+                {
+                    Message = "Successful",
+                    Issuccess = true
+                };
+            }
+            return new UserManagerResponse
+            {
+                Message = "Something went wrong",
+                Issuccess = false,
+                Errors = result.Errors.Select(u => u.Description)
+            };
         }
     }
 }

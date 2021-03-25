@@ -66,7 +66,26 @@ namespace IdentityDemo.API.Controllers
             }
             return BadRequest(result);
         }
-
+        [HttpPost("forgetpassword")]
+        public async Task<IActionResult> Forgetpassword(string email)
+        {
+            var result = await _userService.ForgetPassword(email);
+            if (result.Issuccess)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+        [HttpPost("ResetPassword")]
+        public async Task<IActionResult> ResetPassword([FromForm]ResetPasswordViewModel reset)
+        {
+            var result = await _userService.ResetPassword(reset);
+            if (result.Issuccess)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
         // GET: api/<AuthController>
         [HttpGet]
         public IEnumerable<string> Get()
